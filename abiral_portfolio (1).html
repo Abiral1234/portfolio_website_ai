@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abiral Pokhrel — Flutter Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --accent: #54c5f8;
+    --accent2: #01579b;
+    --accent3: #ff6b6b;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.5;
+    transition: transform 0.15s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    mix-blend-mode: screen;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9990;
+    opacity: 0.4;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3rem;
+    background: rgba(10,10,15,0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* ---- HERO ---- */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 8rem 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 75% 50%, rgba(84,197,248,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(1,87,155,0.06) 0%, transparent 60%);
+  }
+
+  .hero-grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-left {
+    position: relative;
+    z-index: 2;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  h1 .highlight {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover {
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(84,197,248,0.3);
+  }
+  .btn-ghost {
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .hero-right {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 320px;
+    position: relative;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(84,197,248,0.2), transparent 60%);
+    pointer-events: none;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0;
+  }
+  .stat-item {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    letter-spacing: 0.05em;
+  }
+
+  .contact-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 0.5rem 0.75rem;
+    background: var(--surface);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .chip:hover { color: var(--accent); border-color: var(--accent); }
+  .chip-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ---- SECTIONS ---- */
+  section { padding: 6rem 3rem; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 0.25rem;
+  }
+
+  /* ---- EXPERIENCE ---- */
+  #experience { background: var(--surface); }
+
+  .exp-list { display: flex; flex-direction: column; gap: 0; }
+
+  .exp-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 2rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    transition: background 0.2s;
+  }
+  .exp-item:first-child { border-top: 1px solid var(--border); }
+
+  .exp-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .exp-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .exp-company {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .exp-content {}
+  .exp-role {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .exp-points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .exp-points li {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+    padding-left: 1.25rem;
+    position: relative;
+  }
+  .exp-points li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 0.8rem;
+  }
+
+  /* ---- PROJECTS ---- */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .project-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(94,255,160,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .project-card:hover::before { opacity: 1; }
+
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .project-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .project-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .project-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 1.5rem;
+  }
+  .project-links {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .project-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid rgba(94,255,160,0.3);
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    transition: background 0.2s, color 0.2s;
+  }
+  .project-link:hover {
+    background: var(--accent);
+    color: #000;
+  }
+  .project-metrics {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .metric {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: rgba(84,197,248,0.08);
+    padding: 0.3rem 0.65rem;
+    border-radius: 4px;
+  }
+
+  /* ---- SKILLS ---- */
+  #skills { background: var(--surface); }
+
+  .skills-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  .skill-group-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .skill-tag {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .skill-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(94,255,160,0.05);
+  }
+
+  /* ---- EDUCATION ---- */
+  .edu-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
+
+  .edu-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .edu-card:hover { border-color: rgba(94,255,160,0.3); }
+  .edu-degree {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.35rem;
+  }
+  .edu-school { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.6rem; }
+  .edu-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+  }
+
+  /* ---- FOOTER ---- */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+  }
+  .footer-left {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  .footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* ---- ADDITIONAL ---- */
+  .extra-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 0;
+  }
+  .extra-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+  .extra-card-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .extra-card p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .extra-card a {
+    color: var(--accent2);
+    text-decoration: none;
+  }
+  .extra-card a:hover { text-decoration: underline; }
+
+  /* ---- ANIMATIONS ---- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; }
+    .hero-right { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .skills-wrapper { grid-template-columns: 1fr; }
+    .extra-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AP_PORTFOLIO</div>
+  <ul class="nav-links">
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="mailto:abiral.pokhrel99@gmail.com">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+
+  <div class="hero-left">
+    <div class="hero-tag">Flutter Developer</div>
+    <h1>Abiral<br><span class="highlight">Pokhrel</span></h1>
+    <p class="hero-desc">Building high-quality, scalable mobile & web applications. 5 years of experience crafting seamless user experiences — from healthcare platforms to e-commerce.</p>
+    <div class="hero-actions">
+      <a href="mailto:abiral.pokhrel99@gmail.com" class="btn btn-primary">Get in touch ↗</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-card">
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-num">5+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Major Projects</div>
+        </div>
+
+      </div>
+      <div class="contact-chips">
+        <a href="mailto:abiral.pokhrel99@gmail.com" class="chip">
+          <span class="chip-dot"></span>abiral.pokhrel99@gmail.com
+        </a>
+        <a href="tel:+9779866046607" class="chip">
+          <span class="chip-dot"></span>+977-9866046607
+        </a>
+        <a href="https://www.abiralpokhrel.com.np" target="_blank" class="chip">
+          <span class="chip-dot"></span>abiralpokhrel.com.np
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2>Experience</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="exp-list">
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <span class="exp-period">Dec 2023 — Present</span>
+        <span class="exp-company">Asterisk Hubs</span>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Mid Level Flutter Developer</div>
+        <ul class="exp-points">
+          <li>Developed HIPAA-compliant healthcare applications featuring Auth0 authentication, FHIR integration, digital signing, real-time chat, and Aidbox support.</li>
+          <li>Built multi-role healthcare applications supporting patients, practitioners, and suppliers across the care ecosystem.</li>
+          <li>Architected responsive Flutter web and mobile UI with full WCAG compliance.</li>
+          <li>Integrated SMART on FHIR for EHR access, HIPAA-aligned document workflows, and Aidbox backend.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <span class="exp-period">Jun 2023 — Dec 2023</span>
+        <span class="exp-company">Tuki Soft Pvt. Ltd.</span>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Flutter Developer</div>
+        <ul class="exp-points">
+          <li>Designed a hotel booking platform with real-time bargaining, achieving a 20% increase in user engagement.</li>
+          <li>Developed food service solutions that reduced order processing time by 30%.</li>
+          <li>Optimized ride-sharing service solutions, enhancing ride-matching efficiency by 25%.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-meta">
+        <span class="exp-period">May 2021 — Jun 2023</span>
+        <span class="exp-company">Dioralabs</span>
+      </div>
+      <div class="exp-content">
+        <div class="exp-role">Freelance Flutter Developer</div>
+        <ul class="exp-points">
+          <li>Built the front end of an e-commerce app using Flutter, reducing load times by 40% with seamless API integration, driving a 30% increase in user engagement.</li>
+          <li>Empowered vendors to create shops and add products, driving a 20% increase in vendor sign-ups.</li>
+          <li>Refined application responsiveness with a 40% reduction in load times, maximizing user retention.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2>Projects</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <div class="project-header">
+        <div class="project-name">Rideon</div>
+        <div class="project-period">Dec 2023 — Present</div>
+      </div>
+      <div class="project-metrics">
+        <span class="metric">−30% errors</span>
+        <span class="metric">500h/mo saved</span>
+        <span class="metric">+40% satisfaction</span>
+        <span class="metric">98% uptime</span>
+      </div>
+      <p class="project-desc">A healthcare app serving multiple hospitals with authentication, real-time chat, FHIR resource management, digital document signing, and Aidbox integration.</p>
+      <div class="project-links">
+        <a href="https://play.google.com/store/apps/details?id=com.gheit.rideon" target="_blank" class="project-link">▶ Play Store</a>
+        <a href="https://apps.apple.com/app/rideon-dme/id6736434603" target="_blank" class="project-link">▶ App Store</a>
+        <a href="https://rideon.shoprideon.com" target="_blank" class="project-link">▶ Web App</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-header">
+        <div class="project-name">Pauna</div>
+        <div class="project-period">Jun 2023 — Jan 2024</div>
+      </div>
+      <div class="project-metrics">
+        <span class="metric">+25% bookings Q1</span>
+        <span class="metric">+35% engagement</span>
+      </div>
+      <p class="project-desc">A hotel booking app featuring real-time bargaining for personalized deals, a user-friendly interface, and diverse accommodation options.</p>
+      <div class="project-links">
+        <a href="https://play.google.com/store/apps/details?id=com.tukisoft.Pauna" target="_blank" class="project-link">▶ Play Store</a>
+        <a href="https://pauna.tukisoft.com.np" target="_blank" class="project-link">▶ Web App</a>
+      </div>
+    </div>
+
+    <div class="project-card reveal">
+      <div class="project-header">
+        <div class="project-name">KhojNet</div>
+        <div class="project-period">Jun 2021 — Jun 2023</div>
+      </div>
+      <div class="project-metrics">
+        <span class="metric">300+ vendors</span>
+        <span class="metric">+40% vendor sales</span>
+        <span class="metric">+30% satisfaction</span>
+      </div>
+      <p class="project-desc">An e-commerce platform where 300+ vendors list products after post-admin verification, enabling thousands of customers to make secure purchases.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2>Skills</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="skills-wrapper reveal">
+    <div>
+      <div class="skill-group-title">Technical</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Flutter / Dart</span>
+        <span class="skill-tag">FHIR Integration</span>
+        <span class="skill-tag">HIPAA Compliance</span>
+        <span class="skill-tag">Auth0</span>
+        <span class="skill-tag">Firebase</span>
+        <span class="skill-tag">Web Sockets</span>
+        <span class="skill-tag">WCAG 2.1</span>
+        <span class="skill-tag">SMART on FHIR</span>
+        <span class="skill-tag">Aidbox</span>
+        <span class="skill-tag">AI Integration</span>
+        <span class="skill-tag">REST APIs</span>
+        <span class="skill-tag">Cerner / Epic / OpenEMR</span>
+      </div>
+    </div>
+    <div>
+      <div class="skill-group-title">Professional</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Agile Methodology</span>
+        <span class="skill-tag">Leadership</span>
+        <span class="skill-tag">Communication</span>
+        <span class="skill-tag">Frontend Architecture</span>
+        <span class="skill-tag">Performance Optimization</span>
+        <span class="skill-tag">Open Source</span>
+        <span class="skill-tag">English</span>
+        <span class="skill-tag">Hindi</span>
+        <span class="skill-tag">Nepali</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2>Education</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="edu-list reveal">
+    <div class="edu-card">
+      <div class="edu-degree">Bachelor in Software Engineering</div>
+      <div class="edu-school">Gandaki College Of Engineering</div>
+      <div class="edu-period">Sep 2019 — Sep 2023</div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-degree">High School</div>
+      <div class="edu-school">Sos Hermann Gmeiner School</div>
+      <div class="edu-period">May 2016 — Jan 2018</div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-degree">SLC</div>
+      <div class="edu-school">Nilgiri English Boarding School</div>
+      <div class="edu-period">Jan 2006 — Jan 2016</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <div class="section-header reveal" style="margin-bottom: 1.5rem;">
+      <span class="section-num" style="font-size:0.7rem;">05</span>
+      <h2 style="font-size:1.5rem;">Additional</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="extra-grid reveal">
+      <div class="extra-card">
+        <div class="extra-card-title">Certification</div>
+        <p>Google Cybersecurity Professional Certificate<br><span style="color:var(--accent);font-family:'DM Mono',monospace;font-size:0.72rem;">Nov 2024</span></p>
+      </div>
+      <div class="extra-card">
+        <div class="extra-card-title">Open Source</div>
+        <p>Fixed a UI issue by reserving space for text under a Line Chart in <a href="https://github.com/hamaluik/timecop/pull/154#pullrequestreview-2571540165" target="_blank">timecop</a> on GitHub.</p>
+      </div>
+      <div class="extra-card">
+        <div class="extra-card-title">Languages</div>
+        <p>English &nbsp;·&nbsp; Hindi &nbsp;·&nbsp; Nepali</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">Abiral Pokhrel</div>
+  <div class="footer-right">
+    <span style="color:var(--accent);">abiral.pokhrel99@gmail.com</span>&nbsp;&nbsp;·&nbsp;&nbsp;+977-9866046607
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    cursor.style.left = mx - 4 + 'px';
+    cursor.style.top  = my - 4 + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx - 18 + 'px';
+    ring.style.top  = ry - 18 + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring.style.width = '60px'; ring.style.height = '60px'; ring.style.opacity = '0.3'; });
+    el.addEventListener('mouseleave', () => { ring.style.width = '36px'; ring.style.height = '36px'; ring.style.opacity = '0.5'; });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => io.observe(el));
+</script>
+</body>
+</html>
